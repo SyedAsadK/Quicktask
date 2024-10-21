@@ -81,7 +81,6 @@ func main() {
 	notes := fetchNotes()
 
 	ray.InitWindow(840, 600, "Quick-Task")
-	ray.SetExitKey(ray.KeyQ)
 	defer ray.CloseWindow()
 	ray.SetTargetFPS(60)
 	for !ray.WindowShouldClose() {
@@ -95,16 +94,22 @@ func main() {
 		ray.DrawText("Add", 745, 110, 20, ray.Black)
 		if ray.IsMouseButtonPressed(ray.MouseLeftButton) {
 			if ray.CheckCollisionPointRec(ray.GetMousePosition(), but) {
-				insertNote(textbox1.Text)
-				notes = append(notes, textbox1.Text)
-				textbox1.Text = ""
+				if textbox1.Text != "" && textbox1.Text != " " {
+					insertNote(textbox1.Text)
+					notes = append(notes, textbox1.Text)
+					textbox1.Text = ""
+				}
 			}
 		}
 		ray.DrawText("Quick Task List", 100, 50, 20, ray.LightGray)
-		if ray.IsKeyPressed(ray.KeyEnter) {
-			insertNote(textbox1.Text)
-			notes = append(notes, textbox1.Text)
-			textbox1.Text = ""
+		if textbox1.Text != "" && textbox1.Text != " " {
+			if ray.IsKeyPressed(ray.KeyEnter) {
+				if textbox1.Text != " " {
+					insertNote(textbox1.Text)
+					notes = append(notes, textbox1.Text)
+					textbox1.Text = ""
+				}
+			}
 		}
 		yPosition := 200
 		for _, i := range notes {
@@ -114,7 +119,7 @@ func main() {
 			ray.DrawText("Remove", 610, int32(yPosition), 20, ray.Black)
 			if ray.IsMouseButtonPressed(ray.MouseLeftButton) {
 				if ray.CheckCollisionPointRec(ray.GetMousePosition(), rbut) {
-          removeNote(i)
+					removeNote(i)
 					notes = notes[:len(notes)-1]
 					textbox1.Text = ""
 				}
