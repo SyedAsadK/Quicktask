@@ -11,7 +11,7 @@
 ## Installation
 1. Clone the Repository
 ```
-git clone https://github.com/yourusername/quick-task.git
+git clone https://github.com/SyedAsadK/Quicktask
 cd quick-task
 
 ```
@@ -35,3 +35,5 @@ After building the application, you can run it:
 ./quicktask
 
 ```
+## Showcase
+![Showcase](ss.png)
