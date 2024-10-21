@@ -24,6 +24,7 @@ go mod tidy
 3. Build the Application
 To build the application, use the go build command:
 ```
+cd bin
 go build -o quicktask
 
 ```
