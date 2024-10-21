@@ -12,7 +12,7 @@
 1. Clone the Repository
 ```
 git clone https://github.com/SyedAsadK/Quicktask
-cd quick-task
+cd Quicktask
 
 ```
 2. Install Dependencies
