@@ -10,6 +10,11 @@ import (
 	textbox "raytodo"
 )
 
+type Note struct {
+	Content string
+	ID      int
+}
+
 var db *sql.DB
 
 func initDB() {
@@ -45,29 +50,29 @@ func insertNote(stuff string) {
 		fmt.Println("Error inserting note: ", err)
 	}
 }
-func removeNote(stuff string) {
-	removeNoteSQL := `DELETE FROM notes WHERE (id) =(SELECT max(id) FROM notes)`
-	_, err := db.Exec(removeNoteSQL, stuff)
+func removeNote(id int) {
+	removeNoteSQL := `DELETE FROM notes WHERE id = ?`
+	_, err := db.Exec(removeNoteSQL, id)
 	if err != nil {
 		fmt.Println("Error deleting note: ", err)
 	}
 }
-func fetchNotes() []string {
-	rows, err := db.Query("SELECT content FROM notes")
+func fetchNotes() []Note {
+	rows, err := db.Query("SELECT id, content FROM notes")
 	if err != nil {
 		fmt.Println("Error Fetching note: ", err)
 		return nil
 	}
 	defer rows.Close()
-	var notes []string
+	var notes []Note
 	for rows.Next() {
-		var stuff string
-		err = rows.Scan(&stuff)
+		var note Note
+		err = rows.Scan(&note.ID, &note.Content)
 		if err != nil {
 			fmt.Println("Error scanning row : ", err)
 			continue
 		}
-		notes = append(notes, stuff)
+		notes = append(notes, note)
 	}
 	return notes
 
@@ -77,7 +82,7 @@ func main() {
 	initDB()
 	defer db.Close()
 
-	textbox1 := textbox.NewTextbox(100, 100, 600, 50, 32)
+	textbox1 := textbox.NewTextbox(100, 100, 600, 50, 50)
 	notes := fetchNotes()
 
 	ray.InitWindow(840, 600, "Quick-Task")
@@ -96,7 +101,9 @@ func main() {
 			if ray.CheckCollisionPointRec(ray.GetMousePosition(), but) {
 				if textbox1.Text != "" && textbox1.Text != " " {
 					insertNote(textbox1.Text)
-					notes = append(notes, textbox1.Text)
+          var note Note
+          note.Content = textbox1.Text
+					notes = append(notes, note)
 					textbox1.Text = ""
 				}
 			}
@@ -106,21 +113,23 @@ func main() {
 			if ray.IsKeyPressed(ray.KeyEnter) {
 				if textbox1.Text != " " {
 					insertNote(textbox1.Text)
-					notes = append(notes, textbox1.Text)
+          var note Note
+          note.Content = textbox1.Text
+					notes = append(notes, note)
 					textbox1.Text = ""
 				}
 			}
 		}
 		yPosition := 200
-		for _, i := range notes {
-			ray.DrawText(i, 100, int32(yPosition), 20, ray.Green)
+		for _, note := range notes {
+			ray.DrawText(note.Content, 100, int32(yPosition), 20, ray.Green)
 			rbut := ray.NewRectangle(600, float32(yPosition), 100, 40)
 			ray.DrawRectangleRec(rbut, ray.LightGray)
 			ray.DrawText("Remove", 610, int32(yPosition), 20, ray.Black)
 			if ray.IsMouseButtonPressed(ray.MouseLeftButton) {
 				if ray.CheckCollisionPointRec(ray.GetMousePosition(), rbut) {
-					removeNote(i)
-					notes = notes[:len(notes)-1]
+					removeNote(note.ID)
+					notes = fetchNotes()
 					textbox1.Text = ""
 				}
 			}
